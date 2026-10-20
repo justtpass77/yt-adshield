@@ -1,0 +1,26 @@
+{
+  "name": "youtube-ad-shield",
+  "version": "1.0.0",
+  "description": "High-performance, undetectable open-source YouTube ad blocker and speedup engine.",
+  "main": "src/content.js",
+  "scripts": {
+    "build:icons": "py -3 scripts/generate_icons.py",
+    "build:release": "py -3 scripts/build_release.py",
+    "test": "echo \"Open tests/test_selectors.html in any modern browser to run interactive tests.\""
+  },
+  "keywords": [
+    "youtube",
+    "adblock",
+    "ad-blocker",
+    "fast-forward",
+    "chrome-extension",
+    "manifest-v3",
+    "open-source"
+  ],
+  "author": "Open Source Community",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/youtube-ad-shield.git"
+  }
+}

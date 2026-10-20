@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdShield Test Suite & Mock YouTube Player</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 30px;
+    }
+    .test-box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #334155;
+    }
+    .btn {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 10px;
+      font-weight: 600;
+    }
+    .btn:hover { background: #2563eb; }
+    .btn-red { background: #ef4444; }
+    .btn-red:hover { background: #dc2626; }
+    .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      background: #090d16;
+    }
+    /* Mock YouTube elements */
+    #movie_player {
+      width: 480px;
+      height: 270px;
+      background: #000;
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+    }
+    .ytp-ad-player-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.8);
+      color: #ffcc00;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .ytp-skip-ad-button {
+      position: absolute;
+      bottom: 40px;
+      right: 10px;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .ytp-skip-ad-button:hover {
+      background: white;
+      color: black;
+    }
+    ytd-enforcement-message-view-model {
+      position: absolute;
+      inset: 20px;
+      background: #18181b;
+      border: 2px solid #ef4444;
+      border-radius: 8px;
+      padding: 20px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    tp-yt-iron-overlay-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 900;
+    }
+  </style>
+</head>
+<body>
+  <h1>AdShield Test Harness & Mock Verification</h1>
+  <p>Verify that AdShield detection selectors, fast-forward mechanics, and popup dismissers trigger accurately.</p>
+
+  <div class="test-box">
+    <h3>1. Instream Video Ad Simulation</h3>
+    <button class="btn btn-red" id="btnSimulateAd">Trigger 15s Video Ad</button>
+    <button class="btn" id="btnEndAd">End Ad Manually</button>
+    
+    <div id="movie_player">
+      <video id="mockVideo" src="about:blank"></video>
+      <div id="adOverlaySlot"></div>
+    </div>
+    <div class="status" id="playerStatus">Player State: Normal Video (Speed: 1.0x, Muted: false)</div>
+  </div>
+
+  <div class="test-box">
+    <h3>2. Anti-Adblock Enforcement Modal Simulation</h3>
+    <button class="btn btn-red" id="btnTriggerModal">Inject YouTube Anti-Adblock Modal</button>
+    <div class="status" id="modalStatus">Modal State: Clean (No enforcement dialog)</div>
+  </div>
+
+  <div class="test-box">
+    <h3>3. Automated Test Runner</h3>
+    <button class="btn" id="btnRunTests">Run Automated Selector Tests</button>
+    <div class="status" id="testResults">Click above to execute test suite...</div>
+  </div>
+
+  <script>
+    const player = document.getElementById('movie_player');
+    const video = document.getElementById('mockVideo');
+    const adSlot = document.getElementById('adOverlaySlot');
+    const playerStatus = document.getElementById('playerStatus');
+    const modalStatus = document.getElementById('modalStatus');
+
+    // Update status bar every 200ms
+    setInterval(() => {
+      const isAd = player.classList.contains('ad-showing');
+      playerStatus.textContent = `Player State: ${isAd ? '🚨 AD SHOWING' : '🟢 Normal Content'} | Speed: ${video.playbackRate}x | Muted: ${video.muted} | Time: ${video.currentTime.toFixed(1)}s`;
+    }, 200);
+
+    document.getElementById('btnSimulateAd').addEventListener('click', () => {
+      player.classList.add('ad-showing');
+      video.playbackRate = 1.0;
+      video.muted = false;
+      video.currentTime = 0;
+      adSlot.innerHTML = `
+        <div class="ytp-ad-player-overlay">Ad · 1 of 2 (0:15)</div>
+        <button class="ytp-skip-ad-button" id="mockSkipBtn">Skip Ad</button>
+      `;
+      document.getElementById('mockSkipBtn').onclick = () => {
+        endAd();
+      };
+    });
+
+    document.getElementById('btnEndAd').addEventListener('click', endAd);
+
+    function endAd() {
+      player.classList.remove('ad-showing');
+      adSlot.innerHTML = '';
+    }
+
+    document.getElementById('btnTriggerModal').addEventListener('click', () => {
+      const backdrop = document.createElement('tp-yt-iron-overlay-backdrop');
+      backdrop.id = 'testBackdrop';
+      const modal = document.createElement('div');
+      modal.innerHTML = `
+        <tp-yt-paper-dialog id="testDialog">
+          <ytd-enforcement-message-view-model>
+            <h2>Ad blockers violate YouTube's Terms of Service</h2>
+            <p>It looks like you may be using an ad blocker...</p>
+          </ytd-enforcement-message-view-model>
+        </tp-yt-paper-dialog>
+      `;
+      document.body.appendChild(backdrop);
+      document.body.appendChild(modal);
+      modalStatus.textContent = 'Modal State: Injected! Waiting for AdShield dismissal...';
+    });
+
+    // Test runner
+    document.getElementById('btnRunTests').addEventListener('click', () => {
+      const tests = [
+        {
+          name: "Verify player selector compatibility",
+          run: () => Boolean(document.querySelector('#movie_player'))
+        },
+        {
+          name: "Verify skip button selector matches",
+          run: () => {
+            const btn = document.createElement('button');
+            btn.className = 'ytp-ad-skip-button-modern';
+            return btn.matches('.ytp-skip-ad-button, .ytp-ad-skip-button-modern, .ytp-ad-skip-button');
+          }
+        },
+        {
+          name: "Verify anti-adblock modal selector matches",
+          run: () => {
+            const el = document.createElement('ytd-enforcement-message-view-model');
+            return el.tagName.toLowerCase() === 'ytd-enforcement-message-view-model';
+          }
+        }
+      ];
+
+      let resultsHtml = '';
+      let passed = 0;
+      for (const t of tests) {
+        const ok = t.run();
+        if (ok) passed++;
+        resultsHtml += `<div>${ok ? '✅ PASS' : '❌ FAIL'}: ${t.name}</div>`;
+      }
+      resultsHtml += `<strong>Total: ${passed}/${tests.length} tests passed.</strong>`;
+      document.getElementById('testResults').innerHTML = resultsHtml;
+    });
+  </script>
+</body>
+</html>

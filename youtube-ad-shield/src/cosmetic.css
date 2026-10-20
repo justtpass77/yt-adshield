@@ -1,0 +1,81 @@
+/* ==========================================================================
+   AdShield for YouTube - Cosmetic Ad Filter Rules
+   High-performance zero-flicker CSS rules to remove all visual ad containers
+   ========================================================================== */
+
+/* 1. Homepage & Masthead Banners */
+#masthead-ad,
+ytd-masthead-ad-v3-renderer,
+ytd-banner-promo-renderer-background,
+ytd-video-masthead-ad-advertiser-info-renderer,
+ytd-video-masthead-ad-primary-video-renderer,
+ytd-statement-banner-renderer {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
+/* 2. Feed & Video Grid Sponsored Content */
+ytd-ad-slot-renderer,
+ytd-in-feed-ad-layout-renderer,
+ytd-promoted-sparkles-web-renderer,
+ytd-promoted-sparkles-text-search-renderer,
+ytd-promoted-video-renderer,
+ytd-display-ad-renderer,
+ytd-compact-promoted-video-renderer,
+ytd-search-pyv-renderer,
+#items > ytd-ad-slot-renderer,
+#contents > ytd-ad-slot-renderer {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
+/* 3. Player Video Overlays & Lower-Third Banners */
+.ytp-ad-overlay-container,
+.ytp-ad-image-overlay,
+.ytp-ad-text-overlay,
+.ytp-ad-player-overlay-flyout-cta,
+.ytp-ad-action-interstitial,
+.ytp-ad-progress,
+.ytp-ad-progress-list,
+.ytp-suggested-action-badge[data-ad="true"] {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* 4. Watch Page Right Rail & Sidebar Ads */
+#player-ads,
+#panels-ads,
+ytd-companion-slot-renderer,
+ytd-action-companion-ad-renderer,
+ytd-player-legacy-desktop-watch-ads-renderer {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+}
+
+/* 5. Merchandise & Paid Placement Popups */
+ytd-merch-shelf-renderer,
+.ytp-paid-content-overlay {
+  display: none !important;
+}
+
+/* 6. YouTube Shorts Sponsored Cards */
+ytd-reel-video-renderer[is-ad],
+ytd-reel-video-renderer:has(ytd-ad-slot-renderer) {
+  display: none !important;
+}
+
+/* 7. Anti-Adblock Enforcement Modal Backdrop Suppression */
+/* Prevents YouTube from dimming the screen or freezing user interaction */
+body.adshield-unlocked tp-yt-iron-overlay-backdrop {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Ensure the video container remains full height */
+#player-container.ytd-watch-flexy {
+  min-height: unset !important;
+}
